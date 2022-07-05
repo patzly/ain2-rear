@@ -15,11 +15,6 @@
 #
 #  Copyright (c) 2022 by Patrick Zedler
 
-# --------------------------------------------
-# ------------- Cache Calculator -------------
-# ---------- by Patrick & Alexander ----------
-# --------------------------------------------
-
 import math
 from utils import input_util as cinput
 from utils import print_util as cprint
