@@ -1,9 +1,8 @@
 # Cache Calculator
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  [![Release](https://img.shields.io/github/v/release/patzly/ain2-rear?label=Release&logo=github)](https://github.com/patzly/ain2-rear/releases)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  [![Release](https://img.shields.io/github/v/release/patzly/ain2-rear?label=Release)](https://github.com/patzly/ain2-rear/releases)
 
-Cache Calculator is a German calculator for chache address calculation.
-To use it, simply [download](https://github.com/patzly/ain2-rear/releases) this project and open it in [PyCharm](https://www.jetbrains.com/pycharm/). Then right-click on `cache.py` and select "Run".
+Cache Calculator is a German calculator for cache address calculation written in Python. To use it, simply [download](https://github.com/patzly/ain2-rear/releases) this project and open it in [PyCharm](https://www.jetbrains.com/pycharm/). Then right-click on `cache.py` and select "Run".
 
 **All data and calculations without guarantee.**
 
