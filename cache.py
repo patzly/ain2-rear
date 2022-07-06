@@ -174,7 +174,7 @@ def dirty_calculation():
     print("Anzahl Sets (nächsthöheres Level, in das geschrieben werden soll):")
     set_count_up = cinput.integer(0, None)
 
-    print(cprint.magenta_bold("Kalkulationen für nächsthöheres Cache-Level:"))
+    print(cprint.magenta_bold("Nächsthöheres Cache-Level:"))
 
     block_number_up = int(set_index + tag * set_count)
     print(cprint.bold("Blocknummer: ")
