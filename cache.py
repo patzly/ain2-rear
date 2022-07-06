@@ -19,211 +19,211 @@ import math
 from utils import input_util as cinput
 from utils import print_util as cprint
 
-address_storage = None
-cache_size_storage = None
-cache_size_storage_prev = None
-block_size_storage = None
-block_size_storage_prev = None
-way_count_storage = None
-way_count_storage_prev = None
+cache_size_storage = []
+block_size_storage = []
+way_count_storage = []
 
 
-def get_required_bits(x):
+def required_bits(x):
     return int(math.log10(x) / math.log10(2))
+
+
+def level_name(level):
+    match level:
+        case 1:
+            return "Second"
+        case 2:
+            return "Third"
+        case 3:
+            return "Forth"
+        case _:
+            return "First"
 
 
 def address_calculation():
     global cache_size_storage
-    cache_size_blocks = None
-    if cache_size_storage is None:
-        print("Cache-Größe in Bytes (z.B. " + cprint.green("512") + ", " + cprint.green("64*16")
-              + ") oder Blöcken (z.B. " + cprint.green("#64") + ") eingeben:")
-        cache_size = cinput.string()
-        if "#" in cache_size:
-            cache_size_blocks = int(cache_size.replace("#", "").strip())
-        elif "*" in cache_size:
-            operators = cache_size.split("*")
-            cache_size = int(math.prod(int(x) for x in operators))
-            print("Berechnete Cache-Größe:", cache_size, "Bytes")
-        else:
-            cache_size = int(cache_size)
-        cache_size_storage = cache_size
-    else:
-        cache_size = cache_size_storage
-
     global block_size_storage
-    if block_size_storage is None:
-        print("Block-Größe in Bytes eingeben:")
-        block_size = cinput.integer(0, None)
-        block_size_storage = block_size
-    else:
-        block_size = block_size_storage
-
-    if cache_size_blocks is not None:
-        # Calculate cache size if it was given in blocks
-        cache_size = cache_size_blocks * block_size
-        cache_size_storage = cache_size
-        print("Berechnete Cache-Größe:", cache_size, "Bytes")
-
     global way_count_storage
-    if way_count_storage is None:
-        print("Anzahl Ways eingeben (direct-mapped = 1):")
-        way_count = cinput.integer(1, None)
-        way_count_storage = way_count
-    else:
-        way_count = way_count_storage
 
-    global address_storage
-    if address_storage is None:
-        print("Speicheradresse eingeben:")
-        address = cinput.integer()
-        address_storage = address
-    else:
-        address = address_storage
+    if not cache_size_storage or not block_size_storage or not way_count_storage:
+        print("Anzahl Cache-Levels eingeben:")
+        level_count = cinput.integer(1, 4)
 
-    print(cprint.magenta_bold("Cache: " + str(way_count_storage) + "-Way, "
-                              + str(cache_size_storage) + " Bytes, "
-                              + str(block_size_storage) + "-Byte-Blöcke"))
+        cache_size_storage = [0] * level_count
+        block_size_storage = [0] * level_count
+        way_count_storage = [0] * level_count
 
-    block_count = int(cache_size / block_size)
-    print(cprint.bold("Anzahl Blöcke")
-          + " = (Cache-Größe / Block-Größe) = (" + str(cache_size) + " / " + str(block_size) + ") = "
-          + cprint.yellow_bold(block_count))
+        for level in range(level_count):
+            match level:
+                case 1:
+                    level_string = "Second"
+                case 2:
+                    level_string = "Third"
+                case 3:
+                    level_string = "Forth"
+                case _:
+                    level_string = "First"
 
-    set_count = int(block_count / way_count)
-    print(cprint.bold("Anzahl Sets")
-          + " = (Anzahl Blöcke / Anzahl Ways) = (" + str(block_count) + " / " + str(way_count) + ") = "
-          + cprint.yellow_bold(set_count))
+            print("Cache-Größe des " + cprint.magenta("{}-Level-Cache".format(level_name(level)))
+                  + " in Bytes (z.B. " + cprint.green("512") + ", " + cprint.green("64*16") + ") oder Blöcken (z.B. "
+                  + cprint.green("#64") + ") eingeben:")
+            cache_size = cinput.string()
+            cache_size_blocks = None
+            if "#" in cache_size:
+                cache_size_blocks = int(cache_size.replace("#", "").strip())
+            elif "*" in cache_size:
+                operators = cache_size.split("*")
+                cache_size = int(math.prod(int(x) for x in operators))
+                cache_size_storage[level] = cache_size
+                print("Berechnete Cache-Größe:", cache_size, "Bytes")
+            else:
+                cache_size = int(cache_size)
+                cache_size_storage[level] = cache_size
 
-    block_number = int(math.floor(address / block_size))
-    print(cprint.bold("Blocknummer")
-          + " = (floor(Adresse / Block-Größe)) = (floor(" + str(address) + " / " + str(block_size) + ")) = "
-          + cprint.yellow_bold(block_number))
+            print("Block-Größe des " + cprint.magenta("{}-Level-Cache".format(level_string))
+                  + " in Bytes eingeben:".format(level_string))
+            block_size = cinput.integer(0, None)
+            block_size_storage[level] = block_size
 
-    block_index = int(block_number % block_count)
-    block_index_bits = get_required_bits(block_count)
-    print(cprint.bold("Block-Index")
-          + " = (Blocknummer % Anzahl Blöcke) = (" + str(block_number) + " % " + str(block_count) + ") = "
-          + cprint.yellow_bold(block_index) + " (max. " + str(block_index_bits) + " Bits)")
+            if cache_size_blocks is not None:
+                # Calculate cache size if it was given in blocks
+                cache_size = cache_size_blocks * block_size
+                cache_size_storage[level] = cache_size
+                print("Berechnete Cache-Größe:", cache_size, "Bytes")
 
-    set_index = int(block_number % set_count)
-    set_index_bits = get_required_bits(set_count)
-    print(cprint.bold("Set-Index")
-          + " = (Blocknummer % Anzahl Sets) = (" + str(block_number) + " % " + str(set_count) + ") = "
-          + cprint.yellow_bold(set_index) + " (max. " + str(set_index_bits) + " Bits)")
+            print("Anzahl Ways des " + cprint.magenta("{}-Level-Cache".format(level_string))
+                  + " in Bytes eingeben (direct-mapped = 1):".format(level_string))
+            way_count = cinput.integer(1, None)
+            way_count_storage[level] = way_count
 
-    tag = int(math.floor(block_number / set_count))
-    print(cprint.bold("Tag")
-          + " = (floor(Blocknummer / Anzahl Sets)) = (floor(" + str(block_number) + " / " + str(set_count) + ")) = "
-          + cprint.yellow_bold(tag))
+    print("Speicheradresse eingeben:")
+    address = cinput.integer(0, None)
 
-    byte_offset = int(address % block_size)
-    byte_offset_bits = get_required_bits(block_size)
-    print(cprint.bold("Byte-Offset")
-          + " = (Adresse % Block-Größe) = (" + str(address) + " % " + str(block_size) + ") = "
-          + cprint.yellow_bold(byte_offset) + " (max. " + str(byte_offset_bits) + " Bits)")
+    for level in range(len(cache_size_storage)):
+        cache_size = cache_size_storage[level]
+        block_size = block_size_storage[level]
+        way_count = way_count_storage[level]
+
+        print(cprint.magenta_bold("{}-Level-Cache (".format(level_name(level)) + str(way_count) + "-Way, "
+                                  + str(cache_size) + " Bytes, " + str(block_size) + "-Byte-Blöcke)"))
+
+        block_count = int(cache_size / block_size)
+        print(cprint.bold("Anzahl Blöcke: ")
+              + "(Cache-Größe / Block-Größe) = (" + str(cache_size) + " / " + str(block_size) + ") = "
+              + cprint.yellow_bold(block_count))
+
+        set_count = int(block_count / way_count)
+        if way_count != 1:
+            print(cprint.bold("Anzahl Sets: ")
+                  + "(Anzahl Blöcke / Anzahl Ways) = (" + str(block_count) + " / " + str(way_count) + ") = "
+                  + cprint.yellow_bold(set_count))
+
+        block_number = int(math.floor(address / block_size))
+        print(cprint.bold("Blocknummer: ")
+              + "(floor(Adresse / Block-Größe)) = (floor(" + str(address) + " / " + str(block_size) + ")) = "
+              + cprint.yellow_bold(block_number))
+
+        block_index = int(block_number % block_count)
+        block_index_bits = required_bits(block_count)
+        print(cprint.bold("Block-Index: ")
+              + "(Blocknummer % Anzahl Blöcke) = (" + str(block_number) + " % " + str(block_count) + ") = "
+              + cprint.yellow_bold(block_index) + " (max. " + str(block_index_bits) + " Bits)")
+
+        if way_count != 1:
+            set_index = int(block_number % set_count)
+            set_index_bits = required_bits(set_count)
+            print(cprint.bold("Set-Index: ")
+                  + "(Blocknummer % Anzahl Sets) = (" + str(block_number) + " % " + str(set_count) + ") = "
+                  + cprint.yellow_bold(set_index) + " (max. " + str(set_index_bits) + " Bits)")
+
+        tag = int(math.floor(block_number / set_count))
+        print(cprint.bold("Tag: ")
+              + "(floor(Blocknummer / Anzahl Sets)) = (floor(" + str(block_number) + " / " + str(set_count) + ")) = "
+              + cprint.yellow_bold(tag))
+
+        byte_offset = int(address % block_size)
+        byte_offset_bits = required_bits(block_size)
+        print(cprint.bold("Byte-Offset: ")
+              + "(Adresse % Block-Größe) = (" + str(address) + " % " + str(block_size) + ") = "
+              + cprint.yellow_bold(byte_offset) + " (max. " + str(byte_offset_bits) + " Bits)\n")
+
+    print(cprint.blue_bold("Optionen:\n") +
+          cprint.bold(1) + " Neue Adresse, gleiche Caches\n" +
+          cprint.bold(2) + " Neue Adresse, neue Caches\n" +
+          cprint.bold(3) + " Menü")
+
+    match cinput.integer(1, 3):
+        case 1:
+            address_calculation()
+        case 2:
+            cache_size_storage = []
+            block_size_storage = []
+            way_count_storage = []
+            address_calculation()
+        case 3:
+            menu()
 
 
-def main():
-    global address_storage
+def dirty_calculation():
+    print("Anzahl Sets (Level des Dirty-Blocks) eingeben:")
+    set_count = cinput.integer(1, None)
+    print("Set-Index des Dirty-Blocks eingeben:")
+    set_index = cinput.integer(0, None)
+    print("Tag des Dirty-Blocks eingeben:")
+    tag = cinput.integer(0, None)
+    print("Anzahl Sets (nächsthöheres Level, in das geschrieben werden soll):")
+    set_count_up = cinput.integer(0, None)
+
+    print(cprint.magenta_bold("Kalkulationen für nächsthöheres Cache-Level:"))
+
+    block_number_up = int(set_index + tag * set_count)
+    print(cprint.bold("Blocknummer: ")
+          + "(Set-Index + Tag * Anzahl Sets) = (" + str(set_index) + " + " + str(tag) + " * " + str(set_count) + ") = "
+          + cprint.yellow_bold(block_number_up))
+
+    set_index_up = int(block_number_up % set_count_up)
+    print(cprint.bold("Set-Index: ")
+          + "(Blocknummer % Anzahl Sets) = (" + str(block_number_up) + " % " + str(set_count_up) + ") = "
+          + cprint.yellow_bold(set_index_up))
+
+    tag_up = int(math.floor(block_number_up / set_count_up))
+    print(cprint.bold("Tag: ")
+          + "(floor(Blocknummer / Anzahl Sets)) = (floor(" + str(block_number_up) + " / " + str(set_count_up) + ")) = "
+          + cprint.yellow_bold(tag_up))
+
+    print(cprint.blue_bold("\nOptionen:\n") +
+          cprint.bold(1) + " Funktion wiederholen\n" +
+          cprint.bold(2) + " Menü")
+
+    match cinput.integer(1, 2):
+        case 1:
+            dirty_calculation()
+        case 2:
+            menu()
+
+
+def menu():
     global cache_size_storage
-    global cache_size_storage_prev
+    cache_size_storage = []
     global block_size_storage
-    global block_size_storage_prev
+    block_size_storage = []
     global way_count_storage
-    global way_count_storage_prev
+    way_count_storage = []
 
-    address_calculation()
+    print(cprint.blue_bold("Menü:\n") +
+          cprint.bold(1) + " Adressrechnung\n" +
+          cprint.bold(2) + " Set-Index & Tag (Dirty-Block in höheren Cache schreiben)")
 
-    if cache_size_storage_prev is not None:
-        print(cprint.blue_bold("\nOptionen:\n") +
-              cprint.bold(1) + " Gleiche Adresse, neuer Cache\n" +
-              cprint.bold(2) + " Gleiche Adresse, vorheriger Cache ("
-              + cprint.magenta(str(way_count_storage_prev) + "-Way, "
-              + str(cache_size_storage_prev) + " Bytes, "
-              + str(block_size_storage_prev) + "-Byte-Blöcke") + ")\n" +
-              cprint.bold(3) + " Neue Adresse, gleicher Cache ("
-              + cprint.magenta(str(way_count_storage) + "-Way, "
-              + str(cache_size_storage) + " Bytes, "
-              + str(block_size_storage) + "-Byte-Blöcke") + ")\n" +
-              cprint.bold(4) + " Neue Adresse, vorheriger Cache ("
-              + cprint.magenta(str(way_count_storage_prev) + "-Way, "
-              + str(cache_size_storage_prev) + " Bytes, "
-              + str(block_size_storage_prev) + "-Byte-Blöcke") + ")\n" +
-              cprint.bold(5) + " Neue Adresse, neuer Cache")
-    else:
-        print(cprint.blue_bold("\nOptionen:\n") +
-              cprint.bold(1) + " Gleiche Adresse, neuer Cache\n" +
-              cprint.bold(2) + " Neue Adresse, gleicher Cache ("
-              + cprint.magenta(str(way_count_storage) + "-Way, "
-              + str(cache_size_storage) + " Bytes, "
-              + str(block_size_storage) + "-Byte-Blöcke") + ")\n" +
-              cprint.bold(3) + " Neue Adresse, neuer Cache")
-
-    if cache_size_storage_prev is not None:
-        answer = cinput.integer(1, 5)
-    else:
-        answer = cinput.integer(1, 3)
-
-    if answer == 1:
-        # Gleiche Adresse, neuer Cache
-        cache_size_storage_prev = cache_size_storage
-        cache_size_storage = None
-        block_size_storage_prev = block_size_storage
-        block_size_storage = None
-        way_count_storage_prev = way_count_storage
-        way_count_storage = None
-        main()
-    elif answer == 2:
-        if cache_size_storage_prev is not None:
-            # Gleiche Adresse, vorheriger Cache
-            # Swap current and previous values
-            cache_size_storage, cache_size_storage_prev = cache_size_storage_prev, cache_size_storage
-            block_size_storage, block_size_storage_prev = block_size_storage_prev, block_size_storage
-            way_count_storage, way_count_storage_prev = way_count_storage_prev, way_count_storage
-            main()
-        else:
-            # Neue Adresse, gleicher Cache
-            address_storage = None
-            main()
-    elif answer == 3:
-        address_storage = None
-        if cache_size_storage_prev is not None:
-            # Neue Adresse, vorheriger Cache
-            main()
-        else:
-            # Neue Adresse, neuer Cache
-            cache_size_storage_prev = cache_size_storage
-            cache_size_storage = None
-            block_size_storage_prev = block_size_storage
-            block_size_storage = None
-            way_count_storage_prev = way_count_storage
-            way_count_storage = None
-            main()
-    elif answer == 4:
-        address_storage = None
-        if cache_size_storage_prev is not None:
-            # Neue Adresse, vorheriger Cache
-            # Swap current and previous values
-            cache_size_storage, cache_size_storage_prev = cache_size_storage_prev, cache_size_storage
-            block_size_storage, block_size_storage_prev = block_size_storage_prev, block_size_storage
-            way_count_storage, way_count_storage_prev = way_count_storage_prev, way_count_storage
-            main()
-    elif answer == 5:
-        if cache_size_storage_prev is not None:
-            # Neue Adresse, neuer Cache
-            address_storage = None
-            cache_size_storage_prev = cache_size_storage
-            cache_size_storage = None
-            block_size_storage_prev = block_size_storage
-            block_size_storage = None
-            way_count_storage_prev = way_count_storage
-            way_count_storage = None
-            main()
+    match cinput.integer(1, 2):
+        case 1:
+            address_calculation()
+        case 2:
+            dirty_calculation()
 
 
-print()
-main()
+print("Cache Calculator v1.0.0")
+print(cprint.yellow("Viel Erfolg!\n"))
+menu()
 
 """
 Nicht im Programm enthaltene Formeln bezüglich Caching
