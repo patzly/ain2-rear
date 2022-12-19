@@ -127,14 +127,16 @@ def address_calculation():
         block_index_bits = required_bits(block_count)
         print(cprint.bold("Block-Index: ")
               + "(Blocknummer % Anzahl Blöcke) = (" + str(block_number) + " % " + str(block_count) + ") = "
-              + cprint.yellow_bold(block_index) + " (max. " + str(block_index_bits) + " Bits)")
+              + cprint.yellow_bold(block_index)
+              + " (2^{} = {} ⇒ max. {} Bits)".format(block_index_bits, block_count, block_index_bits))
 
         if way_count != 1:
             set_index = int(block_number % set_count)
             set_index_bits = required_bits(set_count)
             print(cprint.bold("Set-Index: ")
                   + "(Blocknummer % Anzahl Sets) = (" + str(block_number) + " % " + str(set_count) + ") = "
-                  + cprint.yellow_bold(set_index) + " (max. " + str(set_index_bits) + " Bits)")
+                  + cprint.yellow_bold(set_index)
+                  + " (2^{} = {} ⇒ max. {} Bits)".format(set_index_bits, set_count, set_index_bits))
 
         tag = int(math.floor(block_number / set_count))
         print(cprint.bold("Tag: ")
@@ -145,7 +147,8 @@ def address_calculation():
         byte_offset_bits = required_bits(block_size)
         print(cprint.bold("Byte-Offset: ")
               + "(Adresse % Block-Größe) = (" + str(address) + " % " + str(block_size) + ") = "
-              + cprint.yellow_bold(byte_offset) + " (max. " + str(byte_offset_bits) + " Bits)\n")
+              + cprint.yellow_bold(byte_offset)
+              + " (2^{} = {} ⇒ max. {} Bits)\n".format(byte_offset_bits, block_size, byte_offset_bits))
 
     print(cprint.blue_bold("Optionen:\n") +
           cprint.bold(1) + " Neue Adresse, gleiche Caches\n" +
