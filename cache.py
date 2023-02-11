@@ -168,16 +168,16 @@ def address_calculation():
 
 
 def dirty_calculation():
-    print("Anzahl Sets (Level des Dirty-Blocks) eingeben:")
+    print("Anzahl Sets des Cache-Levels, in welchem der Block sich befindet, eingeben:")
     set_count = cinput.integer(1, None)
-    print("Set-Index des Dirty-Blocks eingeben:")
+    print("Set-Index des Blocks eingeben:")
     set_index = cinput.integer(0, None)
-    print("Tag des Dirty-Blocks eingeben:")
+    print("Tag des Blocks eingeben:")
     tag = cinput.integer(0, None)
-    print("Anzahl Sets (nächsthöheres Level, in das geschrieben werden soll):")
+    print("Anzahl Sets des neuen Cache-Levels eingeben:")
     set_count_up = cinput.integer(0, None)
 
-    print(cprint.magenta_bold("Nächsthöheres Cache-Level:"))
+    print(cprint.magenta_bold("Angaben für neues Cache-Level:"))
 
     block_number_up = int(set_index + tag * set_count)
     print(cprint.bold("Blocknummer: ")
@@ -215,7 +215,7 @@ def menu():
 
     print(cprint.blue_bold("Menü:\n") +
           cprint.bold(1) + " Adressrechnung\n" +
-          cprint.bold(2) + " Set-Index & Tag (Dirty-Block in höheren Cache schreiben)")
+          cprint.bold(2) + " Set-Index & Tag für anderes Cache-Level berechnen")
 
     match cinput.integer(1, 2):
         case 1:
@@ -224,7 +224,7 @@ def menu():
             dirty_calculation()
 
 
-print("Cache Calculator v1.0.0")
+print("Cache Calculator v1.0.2")
 print(cprint.yellow("Viel Erfolg!\n"))
 menu()
 
